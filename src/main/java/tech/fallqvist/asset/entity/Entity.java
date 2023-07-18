@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -116,6 +115,7 @@ public abstract class Entity implements Asset {
     @Override
     public void speak() {
     }
+
 
     @Override
     public void update() {
@@ -405,10 +405,6 @@ public abstract class Entity implements Asset {
         gamePanel.getParticles().add(p3);
         gamePanel.getParticles().add(p4);
     }
-    public void updateSql() throws SQLException, IOException {
-
-    }
-
 
     public GamePanel getGamePanel() {
         return gamePanel;

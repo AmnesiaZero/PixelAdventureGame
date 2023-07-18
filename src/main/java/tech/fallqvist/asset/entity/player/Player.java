@@ -8,7 +8,6 @@ import tech.fallqvist.asset.object.equipment.*;
 import tech.fallqvist.asset.object.usable.inventory.OBJ_Key;
 import tech.fallqvist.asset.object.usable.inventory.OBJ_Potion_Red;
 import tech.fallqvist.asset.object.usable.pickuponly.PickUpOnlyObject;
-import tech.fallqvist.sql.MySql;
 import tech.fallqvist.util.KeyHandler;
 
 import java.awt.*;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 public class Player extends Entity {
     private final KeyHandler keyHandler;
@@ -25,6 +25,7 @@ public class Player extends Entity {
     private int resetTimer;
     public int damageReceived = 0;
     public int damageDone = 0;
+    public int killCount = 0;
 
     public Player(GamePanel gamePanel, KeyHandler keyHandler) {
         super(gamePanel);
@@ -39,37 +40,32 @@ public class Player extends Entity {
         getAnimationImages();
     }
 
-    @Override
-    public void updateSql() throws SQLException, IOException {
+    public void updateSql(Connection connection) throws SQLException, IOException {
         try {
-            Connection connection = MySql.getConnection();
-            int level = this.getLevel();
-            int attackPower = this.getAttackPower();
-            int defensePower = this.getDefensePower();
-            int strength = this.getStrength();
-            int coins = this.getCoins();
-            PreparedStatement prStatement = connection.prepareStatement("UPDATE `player_store` SET `time_played`=?,`level`=?,`kill_count`=?,`attack_power`=?,`defense_power`=?,`strength`=?,`coins`=?,`damage_done`=?");
-            prStatement.setInt(2,0);
-            prStatement.setInt(3,level);
-            prStatement.setInt(4,0);
-            prStatement.setInt(5,attackPower);
-            prStatement.setInt(6,defensePower);
-            prStatement.setInt(7,strength);
-            prStatement.setInt(8,coins);
-            prStatement.setInt(9,damageDone);
+            int level = getLevel();
+            int attackPower = getAttackPower();
+            int defensePower = getDefensePower();
+            int strength = getStrength();
+            int coins = getCoins();
+            int timePlayed = (int) TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - getGamePanel().gameStartTime);
+            PreparedStatement prStatement = connection.prepareStatement("UPDATE `player_store` SET `time_played`=?,`level`=?," +
+                    "`kill_count`=?,`attack_power`=?,`defense_power`=?,`strength`=?,`coins`=?,`damage_done`=? WHERE id=" + getGamePanel().currentRunSqlId);
+            prStatement.setInt(1, timePlayed);
+            prStatement.setInt(2, level);
+            prStatement.setInt(3, killCount);
+            prStatement.setInt(4, attackPower);
+            prStatement.setInt(5, defensePower);
+            prStatement.setInt(6, strength);
+            prStatement.setInt(7, coins);
+            prStatement.setInt(8, damageDone);
             prStatement.executeUpdate();
         }
         catch (SQLException e) {
             throw new SQLException(e);
         }
-
-
-
     }
-
     public void setDefaultValues() {
         setDefaultPosition();
-
         setSpeed(4);
         setMaxLife(6);
         setCurrentLife(getMaxLife());
@@ -204,6 +200,13 @@ public class Player extends Entity {
         checkIfInvincible();
         updateLifeAndMana();
         checkIfAlive();
+        try {
+            updateSql(getGamePanel().connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void attacking() {
@@ -276,6 +279,7 @@ public class Player extends Entity {
                 if (getGamePanel().getMonsters()[getGamePanel().getCurrentMap()][index].getCurrentLife() <= 0)
                 {
                     getGamePanel().getMonsters()[getGamePanel().getCurrentMap()][index].setDying(true);
+                    killCount++;
                     getGamePanel().getUi().addMessage("Killed the " + getGamePanel().getMonsters()[getGamePanel().getCurrentMap()][index].getName() + "!");
                     setExp(getExp() + getGamePanel().getMonsters()[getGamePanel().getCurrentMap()][index].getExp());
                     getGamePanel().getUi().addMessage("Exp + " + getGamePanel().getMonsters()[getGamePanel().getCurrentMap()][index].getExp());

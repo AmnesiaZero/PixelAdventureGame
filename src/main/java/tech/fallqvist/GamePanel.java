@@ -9,6 +9,7 @@ import tech.fallqvist.asset.tile.TileManager;
 import tech.fallqvist.asset.tile.interactive.InteractiveTile;
 import tech.fallqvist.event.EventHandler;
 import tech.fallqvist.sound.SoundManager;
+import tech.fallqvist.sql.MySql;
 import tech.fallqvist.ui.UI;
 import tech.fallqvist.util.CollisionChecker;
 import tech.fallqvist.util.Config;
@@ -18,7 +19,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -65,6 +68,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final int titleState = 0;
     private final int playState = 1;
     private final int pauseState = 2;
+    public final int leaderBoardState = 9;
     private final int dialogueState = 3;
     private final int characterState = 4;
     private final int optionState = 5;
@@ -88,8 +92,11 @@ public class GamePanel extends JPanel implements Runnable {
     private final InteractiveTile[][] interactiveTiles = new InteractiveTile[maxMaps][50];
     private final List<Asset> projectiles = new ArrayList<>();
     private final List<Asset> particles = new ArrayList<>();
+    public final long gameStartTime = System.currentTimeMillis();
+    public Connection connection = MySql.getConnection();
+    public int currentRunSqlId;
 
-    public GamePanel() {
+    public GamePanel() throws SQLException, IOException {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
@@ -147,6 +154,11 @@ public class GamePanel extends JPanel implements Runnable {
         assetManager.setInteractiveTiles();
         gameState = titleState;
         stopMusic();
+        try {
+            currentRunSqlId = MySql.startNewRunSql(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -155,12 +167,15 @@ public class GamePanel extends JPanel implements Runnable {
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
-
+        try {
+            currentRunSqlId = MySql.startNewRunSql(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         while (gameThread != null) {
             currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / drawInterval;
             lastTime = currentTime;
-
             if (delta >= 1) {
                 try {
                     update();
@@ -174,6 +189,13 @@ public class GamePanel extends JPanel implements Runnable {
                 delta--;
             }
         }
+        try {
+            Statement statement = connection.createStatement();
+            statement.execute("DELETE FROM `player_store` WHERE time_played=0");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public void update() throws SQLException, IOException {
@@ -184,7 +206,6 @@ public class GamePanel extends JPanel implements Runnable {
             updateProjectiles();
             updateParticles();
             updateInteractiveTiles();
-            player.updateSql();
         }
 
         if (gameState == pauseState) {

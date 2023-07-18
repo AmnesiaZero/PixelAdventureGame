@@ -88,6 +88,9 @@ public class UI {
         if (gamePanel.getGameState() == gamePanel.getDialogueState()) {
             drawDialogueScreen();
         }
+        if (gamePanel.getGameState() == gamePanel.leaderBoardState) {
+            drawLeaderboard();
+        }
 
         if (gamePanel.getGameState() == gamePanel.getCharacterState()) {
             drawCharacterScreen();
@@ -167,17 +170,16 @@ public class UI {
             }
         }
 
-        text = "LOAD GAME";
+        text = "WATCH BEST RUNS";
         x = UtilityTool.getXForCenterOfText(text, gamePanel, graphics2D);
         y += gamePanel.getTileSize();
         graphics2D.drawString(text, x, y);
         if (commandNumber == 1) {
             graphics2D.drawString(">", x - gamePanel.getTileSize(), y);
             if (gamePanel.getKeyHandler().isEnterPressed()) {
-                // Later
+                gamePanel.setGameState(gamePanel.leaderBoardState);
             }
         }
-
         text = "QUIT";
         x = UtilityTool.getXForCenterOfText(text, gamePanel, graphics2D);
         y += gamePanel.getTileSize();
@@ -370,6 +372,11 @@ public class UI {
         int tailX = (frameX + frameWidth) - 30;
 
         drawValues(textY, lineHeight, tailX);
+    }
+
+    public void drawLeaderboard() {
+
+
     }
 
     private void drawText(int textX, int textY, int lineHeight) {

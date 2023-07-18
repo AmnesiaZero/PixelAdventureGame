@@ -1,12 +1,14 @@
 package tech.fallqvist;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.sql.SQLException;
 
 public class Main {
 
     public static JFrame window;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException, IOException {
         window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);

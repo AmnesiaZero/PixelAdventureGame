@@ -147,7 +147,7 @@ public class UI {
         gamePanel.getKeyHandler().setEnterPressed(false);
     }
 
-    private void drawStartScreen() {
+    public void drawStartScreen() {
 
         // TITLE TEXT
         graphics2D.setFont(graphics2D.getFont().deriveFont(Font.BOLD, 96F));
@@ -278,13 +278,20 @@ public class UI {
         int x = UtilityTool.getXForCenterOfText(text, gamePanel, graphics2D);
         int y = gamePanel.getTileSize();
         graphics2D.drawString(text, x, y);
+        if (commandNumber == 0) {
+            graphics2D.drawString(">", x - gamePanel.getTileSize(), y);
+            if (gamePanel.getKeyHandler().isEnterPressed()) {
+                titleScreenState = 0;
+                commandNumber = 0;
+            }
+        }
         String[] order = new String[]{"time_played", "level", "kill_count", "attack_power", "defense_power", "strength", "coins", "damage_done"};
         int switchParam;
 //        switch (result){
 //            case 0 ->
 //        }
         String orderParam = order[1];
-        String sqlQuery = "SELECT * FROM `player_store` ORDER BY " + orderParam + " DESC";
+        String sqlQuery = "SELECT * FROM `player_store` ORDER BY " + orderParam + " DESC LIMIT 10";
         Statement statement = gamePanel.connection.createStatement();
         ResultSet resultSet = statement.executeQuery(sqlQuery);
         String[] columnNames = new String[]{"id", "time_played", "level", "kill_count", "attack_power", "defense_power", "strength", "coins", "damage_done"};
@@ -294,7 +301,7 @@ public class UI {
         for (String name : columnNames) {
             text = name;
             graphics2D.drawString(text, x, y);
-            if (text.length() < 5) x += gamePanel.getTileSize();
+            if (text.length() < 7) x += gamePanel.getTileSize();
             else x += text.length() * 10;
         }
         while (resultSet.next()) {
@@ -305,8 +312,8 @@ public class UI {
                 rows[i] = resultSet.getInt(columnNames[i]);
                 text = Integer.toString(rows[i]);
                 graphics2D.drawString(text, x, y);
-                if (columnNames[i].length() < 5) x += gamePanel.getTileSize();
-                else x += text.length() * 10;
+                if (columnNames[i].length() < 7) x += gamePanel.getTileSize() + 5;
+                else x += columnNames[i].length() * 10 + 5;
             }
         }
     }

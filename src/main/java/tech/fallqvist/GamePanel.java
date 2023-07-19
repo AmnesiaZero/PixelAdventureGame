@@ -141,6 +141,11 @@ public class GamePanel extends JPanel implements Runnable {
         player.restoreLifeAndMana();
         assetManager.setNPCs();
         assetManager.setMonsters();
+        try {
+            MySql.cleanTable(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         gameState = playState;
     }
 
@@ -153,11 +158,6 @@ public class GamePanel extends JPanel implements Runnable {
         assetManager.setInteractiveTiles();
         gameState = titleState;
         stopMusic();
-        try {
-            currentRunSqlId = MySql.startNewRunSql(connection);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override

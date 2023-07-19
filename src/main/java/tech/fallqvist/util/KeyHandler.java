@@ -7,7 +7,7 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
 
-    private boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, spacePressed, projectileKeyPressed;
+    private boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, spacePressed, projectileKeyPressed, esapePressed;
     private final GamePanel gamePanel;
 
     // DEBUG
@@ -20,31 +20,22 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
-
         if (gamePanel.getGameState() == gamePanel.getTitleState()) {
             checkTitleStateKeyPressed(code);
-
         } else if (gamePanel.getGameState() == gamePanel.getPlayState()) {
             checkPlayStateKeyPressed(code);
-
         } else if (gamePanel.getGameState() == gamePanel.getPauseState()) {
             checkPauseStateKeyPressed(code);
-
         } else if (gamePanel.getGameState() == gamePanel.getDialogueState()) {
             checkDialogueStateKeyPressed(code);
-
         } else if (gamePanel.getGameState() == gamePanel.getCharacterState()) {
             checkCharacterStateKeyPressed(code);
-
         } else if (gamePanel.getGameState() == gamePanel.getOptionState()) {
             checkOptionStateKeyPressed(code);
-
         } else if (gamePanel.getGameState() == gamePanel.getGameOverState()) {
             checkGameOverStateKeyPressed(code);
         } else if (gamePanel.getGameState() == gamePanel.getTradeState()) {
             checkTradeStateKeyPressed(code);
-        } else if (gamePanel.getGameState() == gamePanel.leaderBoardState) {
-
         }
     }
 

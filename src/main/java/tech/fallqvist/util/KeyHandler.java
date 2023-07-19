@@ -43,6 +43,8 @@ public class KeyHandler implements KeyListener {
             checkGameOverStateKeyPressed(code);
         } else if (gamePanel.getGameState() == gamePanel.getTradeState()) {
             checkTradeStateKeyPressed(code);
+        } else if (gamePanel.getGameState() == gamePanel.leaderBoardState) {
+
         }
     }
 

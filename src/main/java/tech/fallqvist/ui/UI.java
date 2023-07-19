@@ -13,6 +13,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -89,7 +92,11 @@ public class UI {
             drawDialogueScreen();
         }
         if (gamePanel.getGameState() == gamePanel.leaderBoardState) {
-            drawLeaderboard();
+            try {
+                drawLeaderboard();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         if (gamePanel.getGameState() == gamePanel.getCharacterState()) {
@@ -128,6 +135,13 @@ public class UI {
         switch (titleScreenState) {
             case 0 -> drawStartScreen();
             case 1 -> drawClassScreen();
+            case 2 -> {
+                try {
+                    drawLeaderboard();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
         gamePanel.getKeyHandler().setEnterPressed(false);
@@ -177,7 +191,8 @@ public class UI {
         if (commandNumber == 1) {
             graphics2D.drawString(">", x - gamePanel.getTileSize(), y);
             if (gamePanel.getKeyHandler().isEnterPressed()) {
-                gamePanel.setGameState(gamePanel.leaderBoardState);
+                titleScreenState = 2;
+                commandNumber = 1;
             }
         }
         text = "QUIT";
@@ -252,6 +267,46 @@ public class UI {
             if (gamePanel.getKeyHandler().isEnterPressed()) {
                 titleScreenState = 0;
                 commandNumber = 0;
+            }
+        }
+    }
+
+    public void drawLeaderboard() throws SQLException {
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.setFont(graphics2D.getFont().deriveFont(Font.BOLD, 42F));
+        String text = "BEST RUNS:";
+        int x = UtilityTool.getXForCenterOfText(text, gamePanel, graphics2D);
+        int y = gamePanel.getTileSize();
+        graphics2D.drawString(text, x, y);
+        String[] order = new String[]{"time_played", "level", "kill_count", "attack_power", "defense_power", "strength", "coins", "damage_done"};
+        int switchParam;
+//        switch (result){
+//            case 0 ->
+//        }
+        String orderParam = order[1];
+        String sqlQuery = "SELECT * FROM `player_store` ORDER BY " + orderParam + " DESC";
+        Statement statement = gamePanel.connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(sqlQuery);
+        String[] columnNames = new String[]{"id", "time_played", "level", "kill_count", "attack_power", "defense_power", "strength", "coins", "damage_done"};
+        graphics2D.setFont(graphics2D.getFont().deriveFont(Font.BOLD, 20F));
+        y += gamePanel.getTileSize();
+        x = gamePanel.getTileSize();
+        for (String name : columnNames) {
+            text = name;
+            graphics2D.drawString(text, x, y);
+            if (text.length() < 5) x += gamePanel.getTileSize();
+            else x += text.length() * 10;
+        }
+        while (resultSet.next()) {
+            y += gamePanel.getTileSize();
+            x = gamePanel.getTileSize();
+            int rows[] = new int[columnNames.length];
+            for (int i = 0; i < rows.length; i++) {
+                rows[i] = resultSet.getInt(columnNames[i]);
+                text = Integer.toString(rows[i]);
+                graphics2D.drawString(text, x, y);
+                if (columnNames[i].length() < 5) x += gamePanel.getTileSize();
+                else x += text.length() * 10;
             }
         }
     }
@@ -374,10 +429,6 @@ public class UI {
         drawValues(textY, lineHeight, tailX);
     }
 
-    public void drawLeaderboard() {
-
-
-    }
 
     private void drawText(int textX, int textY, int lineHeight) {
         graphics2D.drawString("Level", textX, textY);

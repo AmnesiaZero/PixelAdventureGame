@@ -29,8 +29,10 @@ public class MySql {
         return resultSet.getInt(1);
     }
 
-    public void calculateBestRun() {
-
+    public static void cleanTable(Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        statement.execute("DELETE FROM `player_store` WHERE `time_played`=0");
     }
+
 
 }

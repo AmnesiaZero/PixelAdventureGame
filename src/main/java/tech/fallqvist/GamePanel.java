@@ -21,7 +21,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -190,8 +189,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
         try {
-            Statement statement = connection.createStatement();
-            statement.execute("DELETE FROM `player_store` WHERE time_played=0");
+            MySql.cleanTable(connection);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

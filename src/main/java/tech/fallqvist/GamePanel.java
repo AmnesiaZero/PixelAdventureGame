@@ -187,13 +187,12 @@ public class GamePanel extends JPanel implements Runnable {
                 drawToScreen();
                 delta--;
             }
+            try {
+                MySql.cleanTable(connection);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
-        try {
-            MySql.cleanTable(connection);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     public void update() throws SQLException, IOException {

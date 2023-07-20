@@ -73,18 +73,30 @@ public class KeyHandler implements KeyListener {
     }
 
     private void checkLeaderBoardScreenKeyPressed(int code) {
-        if (code == KeyEvent.VK_W) {
+        if (code == KeyEvent.VK_A) {
             gamePanel.getUi().setCommandNumber(gamePanel.getUi().getCommandNumber() - 1);
             gamePanel.playSoundEffect(9);
             if (gamePanel.getUi().getCommandNumber() < 0) {
-                gamePanel.getUi().setCommandNumber(2);
+                gamePanel.getUi().setCommandNumber(0);
             }
         }
 
-        if (code == KeyEvent.VK_S) {
+        if (code == KeyEvent.VK_D) {
             gamePanel.getUi().setCommandNumber(gamePanel.getUi().getCommandNumber() + 1);
             gamePanel.playSoundEffect(9);
-            if (gamePanel.getUi().getCommandNumber() > 2) {
+            if (gamePanel.getUi().getCommandNumber() > gamePanel.getUi().columnNames.length) {
+                gamePanel.getUi().setCommandNumber(0);
+            }
+        }
+        if (code == KeyEvent.VK_S) {
+            gamePanel.getUi().setCommandNumber(gamePanel.getUi().columnNames.length + 1);
+            if (gamePanel.getUi().getCommandNumber() > gamePanel.getUi().columnNames.length + 1) {
+                gamePanel.getUi().setCommandNumber(0);
+            }
+        }
+        if (code == KeyEvent.VK_W) {
+            gamePanel.getUi().setCommandNumber(0);
+            if (gamePanel.getUi().getCommandNumber() > gamePanel.getUi().columnNames.length + 1) {
                 gamePanel.getUi().setCommandNumber(0);
             }
         }

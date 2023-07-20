@@ -31,7 +31,6 @@ public class MySql {
 
     public static void cleanTable(Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
-        System.out.println("Вошёл в функцию");
         statement.execute("DELETE FROM `player_store` WHERE `time_played`=0");
     }
 

@@ -45,6 +45,8 @@ public class KeyHandler implements KeyListener {
 
         } else if (gamePanel.getUi().getTitleScreenState() == 1) {
             checkCharacterSelectionScreenKeyPressed(code);
+        } else if (gamePanel.getUi().getTitleScreenState() == 2) {
+            checkLeaderBoardScreenKeyPressed(code);
         }
     }
 
@@ -65,6 +67,27 @@ public class KeyHandler implements KeyListener {
             }
         }
 
+        if (code == KeyEvent.VK_ENTER) {
+            enterPressed = true;
+        }
+    }
+
+    private void checkLeaderBoardScreenKeyPressed(int code) {
+        if (code == KeyEvent.VK_W) {
+            gamePanel.getUi().setCommandNumber(gamePanel.getUi().getCommandNumber() - 1);
+            gamePanel.playSoundEffect(9);
+            if (gamePanel.getUi().getCommandNumber() < 0) {
+                gamePanel.getUi().setCommandNumber(2);
+            }
+        }
+
+        if (code == KeyEvent.VK_S) {
+            gamePanel.getUi().setCommandNumber(gamePanel.getUi().getCommandNumber() + 1);
+            gamePanel.playSoundEffect(9);
+            if (gamePanel.getUi().getCommandNumber() > 2) {
+                gamePanel.getUi().setCommandNumber(0);
+            }
+        }
         if (code == KeyEvent.VK_ENTER) {
             enterPressed = true;
         }

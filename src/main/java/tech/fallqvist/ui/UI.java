@@ -32,6 +32,7 @@ public class UI {
     private String currentDialogue;
     private int commandNumber;
     private int titleScreenState;
+    public int titleLeaderBoardState = 2;
     private int playerSlotCol;
     private int playerSlotRow;
     private int npcSlotCol;
@@ -274,36 +275,46 @@ public class UI {
     public void drawLeaderboard() throws SQLException {
         graphics2D.setColor(Color.WHITE);
         graphics2D.setFont(graphics2D.getFont().deriveFont(Font.BOLD, 42F));
-        String text = "BEST RUNS:";
+        String text = "BEST RUNS";
         int x = UtilityTool.getXForCenterOfText(text, gamePanel, graphics2D);
         int y = gamePanel.getTileSize();
         graphics2D.drawString(text, x, y);
-        if (commandNumber == 0) {
-            graphics2D.drawString(">", x - gamePanel.getTileSize(), y);
-            if (gamePanel.getKeyHandler().isEnterPressed()) {
-                titleScreenState = 0;
-                commandNumber = 0;
-            }
-        }
-        String[] order = new String[]{"time_played", "level", "kill_count", "attack_power", "defense_power", "strength", "coins", "damage_done"};
+        y += gamePanel.getTileSize();
+        text = "ORDER BY:";
+        graphics2D.drawString(text, x, y);
+        String[] order = new String[]{"time_played", "level", "kill_count", "attack_power", "defense_power",
+                "strength", "coins", "damage_done"};
         int switchParam;
 //        switch (result){
 //            case 0 ->
 //        }
-        String orderParam = order[1];
-        String sqlQuery = "SELECT * FROM `player_store` ORDER BY " + orderParam + " DESC LIMIT 10";
-        Statement statement = gamePanel.connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(sqlQuery);
         String[] columnNames = new String[]{"id", "time_played", "level", "kill_count", "attack_power", "defense_power", "strength", "coins", "damage_done"};
         graphics2D.setFont(graphics2D.getFont().deriveFont(Font.BOLD, 20F));
         y += gamePanel.getTileSize();
         x = gamePanel.getTileSize();
-        for (String name : columnNames) {
-            text = name;
+        String orderParam = order[0];
+        int columnsPositions[][] = new int[columnNames.length][];
+        for (int i = 0; i < columnNames.length; i++) {
+            columnsPositions[i] = new int[2];
+            columnsPositions[i][0] = x;
+            columnsPositions[i][1] = y;
+            text = columnNames[i];
             graphics2D.drawString(text, x, y);
             if (text.length() < 7) x += gamePanel.getTileSize();
             else x += text.length() * 10;
         }
+        for (int i = 0; i < columnNames.length; i++) {
+            if (commandNumber == i) {
+                graphics2D.drawString(">", columnsPositions[i][0] - columnNames.length, columnsPositions[i][1]);
+                if (gamePanel.getKeyHandler().isEnterPressed()) {
+                    orderParam = order[i];
+                    commandNumber = i;
+                }
+            }
+        }
+        String sqlQuery = "SELECT * FROM `player_store` ORDER BY " + orderParam + " DESC LIMIT 5";
+        Statement statement = gamePanel.connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(sqlQuery);
         while (resultSet.next()) {
             y += gamePanel.getTileSize();
             x = gamePanel.getTileSize();
@@ -314,6 +325,17 @@ public class UI {
                 graphics2D.drawString(text, x, y);
                 if (columnNames[i].length() < 7) x += gamePanel.getTileSize() + 5;
                 else x += columnNames[i].length() * 10 + 5;
+            }
+        }
+        text = "Cancel";
+        x = UtilityTool.getXForCenterOfText(text, gamePanel, graphics2D);
+        y += gamePanel.getTileSize() * 2;
+        graphics2D.drawString(text, x, y);
+        if (commandNumber == columnNames.length + 1) {
+            graphics2D.drawString(">", x - gamePanel.getTileSize(), y);
+            if (gamePanel.getKeyHandler().isEnterPressed()) {
+                titleScreenState = 0;
+                commandNumber = 0;
             }
         }
     }

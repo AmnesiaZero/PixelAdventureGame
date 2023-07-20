@@ -77,7 +77,7 @@ public class KeyHandler implements KeyListener {
             gamePanel.getUi().setCommandNumber(gamePanel.getUi().getCommandNumber() - 1);
             gamePanel.playSoundEffect(9);
             if (gamePanel.getUi().getCommandNumber() < 0) {
-                gamePanel.getUi().setCommandNumber(0);
+                gamePanel.getUi().setCommandNumber(gamePanel.getUi().columnNames.length);
             }
         }
 

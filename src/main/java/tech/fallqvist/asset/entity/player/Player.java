@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Player extends Entity {
@@ -26,6 +27,7 @@ public class Player extends Entity {
     public int damageReceived = 0;
     public int damageDone = 0;
     public int killCount = 0;
+    public ArrayList<Integer> playerParams = new ArrayList<>();
 
     public Player(GamePanel gamePanel, KeyHandler keyHandler) {
         super(gamePanel);
@@ -42,22 +44,20 @@ public class Player extends Entity {
 
     public void updateSql(Connection connection) throws SQLException, IOException {
         try {
-            int level = getLevel();
-            int attackPower = getAttackPower();
-            int defensePower = getDefensePower();
-            int strength = getStrength();
-            int coins = getCoins();
             int timePlayed = (int) TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - getGamePanel().gameStartTime);
+            playerParams.add(timePlayed);
+            playerParams.add(getLevel());
+            playerParams.add(killCount);
+            playerParams.add(getAttackPower());
+            playerParams.add(getDefensePower());
+            playerParams.add(getStrength());
+            playerParams.add(getCoins());
+            playerParams.add(damageDone);
             PreparedStatement prStatement = connection.prepareStatement("UPDATE `player_store` SET `time_played`=?,`level`=?," +
                     "`kill_count`=?,`attack_power`=?,`defense_power`=?,`strength`=?,`coins`=?,`damage_done`=? WHERE id=" + getGamePanel().currentRunSqlId);
-            prStatement.setInt(1, timePlayed);
-            prStatement.setInt(2, level);
-            prStatement.setInt(3, killCount);
-            prStatement.setInt(4, attackPower);
-            prStatement.setInt(5, defensePower);
-            prStatement.setInt(6, strength);
-            prStatement.setInt(7, coins);
-            prStatement.setInt(8, damageDone);
+            for (int i = 1; i < playerParams.size() + 1; i++)
+                prStatement.setInt(i, playerParams.get(i - 1));
+            playerParams.clear();
             prStatement.executeUpdate();
         }
         catch (SQLException e) {

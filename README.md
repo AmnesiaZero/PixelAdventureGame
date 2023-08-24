@@ -12,6 +12,7 @@
 - [x] NPC
 - [x] Диалоги
 - [x] Инвентарь
+- [x] Таблица рекордов в MySQL DB
 
 ### Скрины
 ![image](https://github.com/AmnesiaZero/PixelAdventureGame/assets/90193990/2ba390fc-5712-478e-8769-73bb5052126f)

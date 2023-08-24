@@ -10,4 +10,8 @@
 - [x] NPC
 - [x] Диалоги
 - [x] Инвентарь
+
+### Скрины
+![image](https://github.com/AmnesiaZero/PixelAdventureGame/assets/90193990/2ba390fc-5712-478e-8769-73bb5052126f)
+
  
